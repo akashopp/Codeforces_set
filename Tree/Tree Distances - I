@@ -1,0 +1,70 @@
+#include<bits/stdc++.h>
+using namespace std;
+ 
+// mx[i] = max distance from i to a leaf from i's subtree 
+ 
+int n, mx[200002], ans[200002];
+ 
+vector<int> v[200002];
+ 
+void dfs(int par, int nod)
+{
+  for(int i = 0; i < v[nod].size(); ++i)
+  {
+    int nxt = v[nod][i];
+    if(nxt == par)
+      continue;
+    dfs(nod, nxt);
+    mx[nod] = max(mx[nod], mx[nxt] + 1);
+  }
+}
+ 
+// dist = max dist between nodes that don't belong to the current node's subtree 
+void dfs2(int par, int nod, int dist)
+{
+  ans[nod] = max(mx[nod], dist);
+  vector<pair<int, int> >distance;
+  for(int i = 0; i < v[nod].size(); ++i)
+  {
+    int nxt = v[nod][i];
+    if(nxt == par)
+      continue;
+    distance.push_back({mx[nxt] + 1, nxt});
+  }
+  sort(distance.begin(), distance.end());
+  for(int i = 0; i < v[nod].size(); ++i)
+  {
+    int nxt = v[nod][i];
+    if(nxt == par)
+      continue;
+    if((distance.back()).second == nxt)
+    {
+      if(distance.size() >= 2)
+      {
+        int poz = distance.size() - 2;
+        dfs2(nod, nxt, max(dist, distance[poz].first) + 1);
+      }
+      else
+        dfs2(nod, nxt, dist + 1);
+    }
+    else
+      dfs2(nod, nxt, max(distance.back().first, dist) + 1);
+  }
+}
+ 
+int main()
+{
+  cin >> n;
+  for(int i = 1; i < n; ++i)
+  {
+    int a, b;
+    cin >> a >> b;
+    v[a].push_back(b);
+    v[b].push_back(a);
+  }
+  dfs(0, 1);
+  dfs2(0, 1, 0);
+  for(int i = 1; i <= n; ++i)
+    cout << ans[i] << " ";
+  return 0;
+}
