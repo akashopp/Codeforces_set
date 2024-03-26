@@ -81,14 +81,14 @@ void solve(){
     adj[u].pb(v), adj[v].pb(u);
   }
 
-  auto f1 = [&](int u, int k){
+  auto jump = [&](int u, int k){
     for0(i,m) if(k & (1 << i)) u = par[u][i];
     return u;
   };
 
-  auto f3 = [&](int u, int v){
+  auto lca = [&](int u, int v){
     if(dpt[u] > dpt[v]) swap(u, v);
-    v = f1(v, dpt[v] - dpt[u]);
+    v = jump(v, dpt[v] - dpt[u]);
     if(u != v){
       for(int i = m-1; i >= 0; i--){
         if(par[u][i] != par[v][i])
@@ -99,8 +99,8 @@ void solve(){
     return u;
   };
 
-  auto f2 = [&](int u, int v){
-    return dpt[u] + dpt[v] - 2*dpt[f3(u, v)];
+  auto dist = [&](int u, int v){
+    return dpt[u] + dpt[v] - 2*dpt[lca(u, v)];
   };
 
   function<void(int,int,int)>dfs = [&](int u, int p, int d){
@@ -117,18 +117,18 @@ void solve(){
   int q; cin>>q;
   while(q--){
     int u, v; cin>>u>>v;
-    int d = f2(u, v);
+    int d = dist(u, v);
     if(d & 1){
       cout<<0<<nline;
     }else if(d == 0){
       cout<<n<<nline;
     }else{
       if(dpt[u] == dpt[v]){
-        u = f1(u, -1 + d/2), v = f1(v, -1 + d/2);
+        u = jump(u, -1 + d/2), v = jump(v, -1 + d/2);
         cout<<n -dp[u] -dp[v]<<nline;
       }else{
         if(dpt[u] > dpt[v]) swap(u, v);
-        int x = f1(v, d/2), y = f1(v, -1 + d/2);
+        int x = jump(v, d/2), y = jump(v, -1 + d/2);
         cout<<dp[x] - dp[y]<<nline;
       }
     }
